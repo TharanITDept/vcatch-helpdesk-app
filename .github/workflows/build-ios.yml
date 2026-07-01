@@ -29,7 +29,7 @@ jobs:
 
       - name: Resolve Swift Package Dependencies
         run: |
-          xcodebuild -project ios/App/App.xcodeproj -resolvePackageDependencies
+          xcodebuild -project ios/App/App.xcodeproj -resolvePackageDependencies -derivedDataPath build
 
       # ============================================================
       # BUILD TYPE 1: Simulator Build (.app) - Does NOT require signing
