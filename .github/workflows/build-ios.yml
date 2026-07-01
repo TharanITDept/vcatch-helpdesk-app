@@ -41,11 +41,16 @@ jobs:
                      -sdk iphonesimulator \
                      -configuration Debug \
                      -derivedDataPath build \
-                     build > build_simulator.log 2>&1 || {
-            echo "=== RUNNING PYTHON LOG PARSER ==="
+                     build > build_simulator.log 2>&1
+
+      - name: Print Simulator Build Errors
+        if: failure()
+        run: |
+          if [ -f build_simulator.log ]; then
             python3 .github/workflows/print_errors.py build_simulator.log
-            exit 1
-          }
+          else
+            echo "build_simulator.log not found."
+          fi
 
       - name: Compress Simulator Build
         run: |
@@ -73,11 +78,16 @@ jobs:
                      CODE_SIGNING_ALLOWED=NO \
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGN_IDENTITY="" \
-                     build > build_device.log 2>&1 || {
-            echo "=== RUNNING PYTHON LOG PARSER ==="
+                     build > build_device.log 2>&1
+
+      - name: Print Device Build Errors
+        if: failure()
+        run: |
+          if [ -f build_device.log ]; then
             python3 .github/workflows/print_errors.py build_device.log
-            exit 1
-          }
+          else
+            echo "build_device.log not found."
+          fi
 
       - name: Package IPA (Unsigned)
         run: |
