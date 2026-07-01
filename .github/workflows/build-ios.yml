@@ -41,7 +41,13 @@ jobs:
                      -sdk iphonesimulator \
                      -configuration Debug \
                      -derivedDataPath build \
-                     build
+                     build > build_simulator.log 2>&1 || {
+            echo "=== XCODEBUILD ERROR LOGS ==="
+            grep -A 5 -i "error:" build_simulator.log || true
+            echo "=== LAST 100 LINES OF BUILD LOG ==="
+            tail -n 100 build_simulator.log
+            exit 1
+          }
 
       - name: Compress Simulator Build
         run: |
@@ -69,7 +75,13 @@ jobs:
                      CODE_SIGNING_ALLOWED=NO \
                      CODE_SIGNING_REQUIRED=NO \
                      CODE_SIGN_IDENTITY="" \
-                     build
+                     build > build_device.log 2>&1 || {
+            echo "=== XCODEBUILD ERROR LOGS ==="
+            grep -A 5 -i "error:" build_device.log || true
+            echo "=== LAST 100 LINES OF BUILD LOG ==="
+            tail -n 100 build_device.log
+            exit 1
+          }
 
       - name: Package IPA (Unsigned)
         run: |
