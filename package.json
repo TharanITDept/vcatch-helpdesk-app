@@ -1,0 +1,21 @@
+{
+  "name": "vcatch-helpdesk-app",
+  "version": "1.0.0",
+  "description": "VCATCH Helpdesk Portal - Android app wrapper (Capacitor)",
+  "scripts": {
+    "sync": "npx cap sync",
+    "sync:android": "npx cap sync android",
+    "sync:ios": "npx cap sync ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "8.4.1"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

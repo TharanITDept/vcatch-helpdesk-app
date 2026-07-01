@@ -1,0 +1,86 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: |
+          npm ci || npm install
+
+      - name: Sync Capacitor iOS
+        run: |
+          npx cap sync ios
+
+      - name: Install CocoaPods
+        run: |
+          cd ios/App
+          pod install
+
+      # ============================================================
+      # BUILD TYPE 1: Simulator Build (.app) - Does NOT require signing
+      # ============================================================
+      - name: Build for iOS Simulator
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -sdk iphonesimulator \
+                     -configuration Debug \
+                     -derivedDataPath build \
+                     build
+
+      - name: Compress Simulator Build
+        run: |
+          cd build/Build/Products/Debug-iphonesimulator
+          zip -r ../../../../VCATCH_Helpdesk_Simulator.zip App.app
+
+      - name: Upload Simulator Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-build
+          path: VCATCH_Helpdesk_Simulator.zip
+
+      # ============================================================
+      # BUILD TYPE 2: Device IPA Build (.ipa)
+      # Note: To install this on a real device, you will eventually
+      # need to configure signing secrets in your GitHub repository.
+      # ============================================================
+      - name: Build Ad-Hoc / Development IPA (Unsigned / Self-Signed)
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+                     -scheme App \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     -derivedDataPath build \
+                     CODE_SIGNING_ALLOWED=NO \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGN_IDENTITY="" \
+                     build
+
+      - name: Package IPA (Unsigned)
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -r VCATCH_Helpdesk_Unsigned.ipa Payload
+          rm -rf Payload
+
+      - name: Upload Unsigned IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-unsigned-ipa
+          path: VCATCH_Helpdesk_Unsigned.ipa
