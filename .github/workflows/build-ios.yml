@@ -27,11 +27,6 @@ jobs:
         run: |
           npx cap sync ios
 
-      - name: Install CocoaPods
-        run: |
-          cd ios/App
-          pod install
-
       # ============================================================
       # BUILD TYPE 1: Simulator Build (.app) - Does NOT require signing
       # ============================================================
